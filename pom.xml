@@ -76,6 +76,31 @@
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.liquibase</groupId>
+                <artifactId>liquibase-maven-plugin</artifactId>
+                <configuration>
+                    <url>jdbc:postgresql://127.0.0.1:5433/liquibase_demo</url>
+                    <username>postgres</username>
+                    <password>2003</password>
+                    <driver>org.postgresql.Driver</driver>
+                    <changeLogFile>src/main/resources/db/changelog/db.changelog-master.xml</changeLogFile>
+                    <referenceUrl>hibernate:spring:com.example.liquibase_demo?dialect=org.hibernate.dialect.PostgreSQLDialect</referenceUrl>
+                    <diffChangeLogFile>src/main/resources/db/changelog/changes/diff-changelog.xml</diffChangeLogFile>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.liquibase.ext</groupId>
+                        <artifactId>liquibase-hibernate6</artifactId>
+                        <version>5.0.3</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-starter-data-jpa</artifactId>
+                        <version>3.3.0</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
         </plugins>
     </build>
 </project>

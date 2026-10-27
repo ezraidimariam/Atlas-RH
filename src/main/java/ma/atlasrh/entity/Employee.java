@@ -60,13 +60,11 @@ public class Employee {
     @JoinColumn(name = "department_id", nullable = false)
     private Department department;
 
-    // Null means this employee has no manager.
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "manager_id")
     private Employee manager;
 
     protected Employee() {
-        // Required by JPA.
     }
 
     public Employee(String employeeNumber, String lastName, String firstName, String email,
@@ -91,6 +89,7 @@ public class Employee {
     public Department getDepartment() { return department; }
     public Employee getManager() { return manager; }
 
+    public void setEmployeeNumber(String employeeNumber) { this.employeeNumber = employeeNumber; }
     public void setLastName(String lastName) { this.lastName = lastName; }
     public void setFirstName(String firstName) { this.firstName = firstName; }
     public void setEmail(String email) { this.email = email; }

@@ -1,0 +1,246 @@
+openapi: 3.0.3
+info:
+  title: AtlasRH API
+  version: 1.0.0
+  description: Core human resources management API.
+servers:
+  - url: http://localhost:8080
+paths:
+  /api/departments:
+    get:
+      tags: [Departments]
+      summary: List departments
+      responses:
+        '200':
+          description: Department list
+    post:
+      tags: [Departments]
+      summary: Create a department
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/DepartmentInput' }
+      responses:
+        '201': { description: Department created }
+        '400': { description: Invalid input }
+        '409': { description: Department name already exists }
+  /api/departments/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: integer, format: int64 } }
+    get:
+      tags: [Departments]
+      summary: Get a department
+      responses:
+        '200': { description: Department details }
+        '404': { description: Department not found }
+    put:
+      tags: [Departments]
+      summary: Replace a department
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/DepartmentInput' }
+      responses:
+        '200': { description: Department updated }
+        '400': { description: Invalid input }
+        '404': { description: Department not found }
+        '409': { description: Duplicate name or department has employees }
+    delete:
+      tags: [Departments]
+      summary: Delete an unused department
+      responses:
+        '204': { description: Department deleted }
+        '404': { description: Department not found }
+        '409': { description: Department has employees }
+  /api/employees:
+    get:
+      tags: [Employees]
+      summary: List employees
+      responses:
+        '200': { description: Employee list }
+    post:
+      tags: [Employees]
+      summary: Create an employee
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EmployeeInput' }
+      responses:
+        '201': { description: Employee created }
+        '400': { description: Invalid input }
+        '404': { description: Department or manager not found }
+        '409': { description: Employee number or email already exists }
+  /api/employees/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: integer, format: int64 } }
+    get:
+      tags: [Employees]
+      summary: Get an employee
+      responses:
+        '200': { description: Employee details }
+        '404': { description: Employee not found }
+    put:
+      tags: [Employees]
+      summary: Replace an employee
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EmployeeInput' }
+      responses:
+        '200': { description: Employee updated }
+        '400': { description: Invalid input or reporting cycle }
+        '404': { description: Employee, department, or manager not found }
+        '409': { description: Duplicate employee number or email }
+    delete:
+      tags: [Employees]
+      summary: Delete an employee without linked records
+      responses:
+        '204': { description: Employee deleted }
+        '404': { description: Employee not found }
+        '409': { description: Employee has linked records }
+  /api/contracts:
+    get:
+      tags: [Contracts]
+      summary: List contracts
+      parameters:
+        - { name: employeeId, in: query, required: false, schema: { type: integer, format: int64 } }
+      responses:
+        '200': { description: Contract list }
+    post:
+      tags: [Contracts]
+      summary: Create a contract
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ContractInput' }
+      responses:
+        '201': { description: Contract created }
+        '400': { description: Invalid input or date range }
+        '404': { description: Employee not found }
+  /api/contracts/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: integer, format: int64 } }
+    get:
+      tags: [Contracts]
+      summary: Get a contract
+      responses:
+        '200': { description: Contract details }
+        '404': { description: Contract not found }
+    put:
+      tags: [Contracts]
+      summary: Replace a contract
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ContractInput' }
+      responses:
+        '200': { description: Contract updated }
+        '400': { description: Invalid input or date range }
+        '404': { description: Contract or employee not found }
+    delete:
+      tags: [Contracts]
+      summary: Delete a contract
+      responses:
+        '204': { description: Contract deleted }
+        '404': { description: Contract not found }
+  /api/leave-requests:
+    get:
+      tags: [Leave requests]
+      summary: List leave requests
+      parameters:
+        - { name: employeeId, in: query, required: false, schema: { type: integer, format: int64 } }
+        - { name: status, in: query, required: false, schema: { type: string, enum: [PENDING, APPROVED, REJECTED] } }
+      responses:
+        '200': { description: Leave request list }
+    post:
+      tags: [Leave requests]
+      summary: Submit a leave request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LeaveRequestInput' }
+      responses:
+        '201': { description: Leave request submitted }
+        '400': { description: Invalid dates or input }
+        '404': { description: Employee not found }
+        '409': { description: Overlaps an approved leave }
+  /api/leave-requests/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: integer, format: int64 } }
+    get:
+      tags: [Leave requests]
+      summary: Get a leave request
+      responses:
+        '200': { description: Leave request details }
+        '404': { description: Leave request not found }
+    delete:
+      tags: [Leave requests]
+      summary: Delete a pending leave request
+      responses:
+        '204': { description: Leave request deleted }
+        '404': { description: Leave request not found }
+        '409': { description: Leave request is no longer pending }
+  /api/leave-requests/{id}/approve:
+    post:
+      tags: [Leave requests]
+      summary: Approve a pending leave request
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer, format: int64 } }
+      responses:
+        '200': { description: Leave approved }
+        '404': { description: Leave request not found }
+        '409': { description: Request is not pending or overlaps another approved leave }
+  /api/leave-requests/{id}/reject:
+    post:
+      tags: [Leave requests]
+      summary: Reject a pending leave request
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer, format: int64 } }
+      responses:
+        '200': { description: Leave rejected }
+        '404': { description: Leave request not found }
+        '409': { description: Request is not pending }
+components:
+  schemas:
+    DepartmentInput:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, maxLength: 100 }
+        description: { type: string, maxLength: 500, nullable: true }
+    EmployeeInput:
+      type: object
+      required: [employeeNumber, lastName, firstName, email, jobTitle, hireDate, departmentId]
+      properties:
+        employeeNumber: { type: string, maxLength: 30 }
+        lastName: { type: string, maxLength: 100 }
+        firstName: { type: string, maxLength: 100 }
+        email: { type: string, format: email, maxLength: 150 }
+        jobTitle: { type: string, maxLength: 100 }
+        hireDate: { type: string, format: date }
+        departmentId: { type: integer, format: int64 }
+        managerId: { type: integer, format: int64, nullable: true }
+    ContractInput:
+      type: object
+      required: [type, startDate, grossSalary, employeeId]
+      properties:
+        type: { type: string, enum: [CDI, CDD, STAGE] }
+        startDate: { type: string, format: date }
+        endDate: { type: string, format: date, nullable: true }
+        grossSalary: { type: number, minimum: 0 }
+        employeeId: { type: integer, format: int64 }
+    LeaveRequestInput:
+      type: object
+      required: [employeeId, startDate, endDate, reason]
+      properties:
+        employeeId: { type: integer, format: int64 }
+        startDate: { type: string, format: date }
+        endDate: { type: string, format: date }
+        reason: { type: string, maxLength: 500 }

@@ -27,7 +27,6 @@ public class Department {
     private String description;
 
     protected Department() {
-        // Required by JPA.
     }
 
     public Department(String name, String description) {

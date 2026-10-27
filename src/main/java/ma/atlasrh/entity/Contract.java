@@ -33,7 +33,6 @@ public class Contract {
     @Column(nullable = false)
     private LocalDate startDate;
 
-    // Can be empty for an ongoing CDI contract.
     private LocalDate endDate;
 
     @NotNull
@@ -47,7 +46,6 @@ public class Contract {
     private Employee employee;
 
     protected Contract() {
-        // Required by JPA.
     }
 
     public Contract(ContractType type, LocalDate startDate, LocalDate endDate,
@@ -66,5 +64,12 @@ public class Contract {
     public BigDecimal getGrossSalary() { return grossSalary; }
     public Employee getEmployee() { return employee; }
 
-    public void setEndDate(LocalDate endDate) { this.endDate = endDate; }
+    public void setDetails(ContractType type, LocalDate startDate, LocalDate endDate,
+                          BigDecimal grossSalary, Employee employee) {
+        this.type = type;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.grossSalary = grossSalary;
+        this.employee = employee;
+    }
 }

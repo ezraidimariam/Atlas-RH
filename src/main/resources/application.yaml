@@ -1,14 +1,8 @@
 spring:
   application:
     name: atlas-rh
-  datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/atlasrh}
-    username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:postgres}
-  jpa:
-    hibernate:
-      ddl-auto: validate
-    open-in-view: false
+  config:
+    import: file:./DB.proprieties[.properties]
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
