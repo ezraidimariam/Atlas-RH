@@ -26,6 +26,8 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/atlasrh
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
+      RH_ADMIN_USERNAME: ${RH_ADMIN_USERNAME:-rh-admin}
+      RH_ADMIN_PASSWORD: ${RH_ADMIN_PASSWORD:?Set RH_ADMIN_PASSWORD before starting AtlasRH}
     ports:
       - "8080:8080"
 

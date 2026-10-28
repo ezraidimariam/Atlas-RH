@@ -11,6 +11,7 @@ Projet d'API REST RH réalisé avec Java 17, Spring Boot et PostgreSQL. Cette pr
 Créez une base PostgreSQL nommée `atlasrh`, puis lancez l'application :
 
 ```bash
+$env:RH_ADMIN_PASSWORD = "choose-a-strong-password"
 mvn spring-boot:run
 ```
 
@@ -45,5 +46,9 @@ Les entités ont un constructeur vide protégé pour JPA et des accesseurs expli
 - Employés : création, consultation, modification et suppression sans dossiers liés, avec département et responsable hiérarchique.
 - Contrats : gestion des contrats CDI, CDD et stage, avec filtrage par employé.
 - Congés : dépôt, consultation, approbation ou refus des demandes. Les demandes approuvées qui se chevauchent sont refusées.
+- Pointage : entrée, sortie et résumés des heures enregistrées.
+- Recrutement : annonces de poste et suivi des candidatures.
+- Formation : catalogue, inscriptions et suivi des formations terminées.
+- Paie : création et consultation des fiches mensuelles. Le net est calculé comme salaire brut + ajouts - déductions.
 
-Les endpoints REST sont préfixés par `/api`. Les champs `departmentId`, `managerId` et `employeeId` référencent les ressources existantes.
+Les endpoints REST sont préfixés par `/api` et protégés par HTTP Basic. Le compte RH utilise `RH_ADMIN_USERNAME` (par défaut `rh-admin`) et le mot de passe obligatoire `RH_ADMIN_PASSWORD`. Les pages Swagger/OpenAPI restent publiques. Les champs `departmentId`, `managerId` et `employeeId` référencent les ressources existantes.

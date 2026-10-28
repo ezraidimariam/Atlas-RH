@@ -5,6 +5,8 @@ info:
   description: Core human resources management API.
 servers:
   - url: http://localhost:8080
+security:
+  - basicAuth: []
 paths:
   /api/departments:
     get:
@@ -207,7 +209,245 @@ paths:
         '200': { description: Leave rejected }
         '404': { description: Leave request not found }
         '409': { description: Request is not pending }
+  /api/employees/search:
+    get:
+      tags: [Employees]
+      summary: Search and page through employees
+      parameters:
+        - { name: q, in: query, schema: { type: string } }
+        - { name: departmentId, in: query, schema: { type: integer, format: int64 } }
+        - { name: page, in: query, schema: { type: integer, minimum: 0, default: 0 } }
+        - { name: size, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 20 } }
+      responses:
+        '200': { description: Paged employee results }
+        '400': { description: Invalid page parameters }
+  /api/employees/{id}/status:
+    put:
+      tags: [Employees]
+      summary: Activate or deactivate an employee
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer, format: int64 } }
+        - { name: active, in: query, required: true, schema: { type: boolean } }
+      responses:
+        '200': { description: Employee status updated }
+        '404': { description: Employee not found }
+  /api/attendance:
+    get:
+      tags: [Attendance]
+      summary: List attendance records in a date range
+      parameters:
+        - { name: employeeId, in: query, schema: { type: integer, format: int64 } }
+        - { name: from, in: query, required: true, schema: { type: string, format: date } }
+        - { name: to, in: query, required: true, schema: { type: string, format: date } }
+      responses:
+        '200': { description: Attendance records }
+        '400': { description: Invalid date range }
+  /api/attendance/summary:
+    get:
+      tags: [Attendance]
+      summary: Summarize attendance in a date range
+      parameters:
+        - { name: employeeId, in: query, schema: { type: integer, format: int64 } }
+        - { name: from, in: query, required: true, schema: { type: string, format: date } }
+        - { name: to, in: query, required: true, schema: { type: string, format: date } }
+      responses:
+        '200': { description: Recorded days, incomplete days, and worked minutes }
+  /api/attendance/{employeeId}/clock-in:
+    post:
+      tags: [Attendance]
+      summary: Record employee arrival
+      parameters:
+        - { name: employeeId, in: path, required: true, schema: { type: integer, format: int64 } }
+      responses:
+        '201': { description: Clock-in recorded }
+        '404': { description: Employee not found }
+        '409': { description: Inactive employee or duplicate clock-in }
+  /api/attendance/{employeeId}/clock-out:
+    post:
+      tags: [Attendance]
+      summary: Record employee departure
+      parameters:
+        - { name: employeeId, in: path, required: true, schema: { type: integer, format: int64 } }
+      responses:
+        '200': { description: Clock-out recorded }
+        '404': { description: Today's clock-in not found }
+        '409': { description: Already clocked out }
+  /api/job-openings:
+    get:
+      tags: [Recruitment]
+      summary: List job openings
+      parameters:
+        - { name: status, in: query, schema: { type: string, enum: [OPEN, CLOSED] } }
+      responses:
+        '200': { description: Job openings }
+    post:
+      tags: [Recruitment]
+      summary: Create a job opening
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/JobOpeningInput' }
+      responses:
+        '201': { description: Job opening created }
+  /api/job-openings/{id}:
+    get:
+      tags: [Recruitment]
+      summary: Get a job opening
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer, format: int64 } }
+      responses:
+        '200': { description: Job opening }
+        '404': { description: Job opening not found }
+  /api/job-openings/{id}/status:
+    put:
+      tags: [Recruitment]
+      summary: Open or close a job opening
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer, format: int64 } }
+        - { name: status, in: query, required: true, schema: { type: string, enum: [OPEN, CLOSED] } }
+      responses:
+        '200': { description: Opening status updated }
+  /api/job-openings/{openingId}/applications:
+    get:
+      tags: [Recruitment]
+      summary: List applications for an opening
+      parameters:
+        - { name: openingId, in: path, required: true, schema: { type: integer, format: int64 } }
+      responses:
+        '200': { description: Applications }
+    post:
+      tags: [Recruitment]
+      summary: Apply to an open position
+      parameters:
+        - { name: openingId, in: path, required: true, schema: { type: integer, format: int64 } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/JobApplicationInput' }
+      responses:
+        '201': { description: Application received }
+        '409': { description: Opening is closed }
+  /api/job-applications/{id}/status:
+    put:
+      tags: [Recruitment]
+      summary: Update a candidate application status
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer, format: int64 } }
+        - { name: status, in: query, required: true, schema: { type: string, enum: [RECEIVED, REVIEWING, ACCEPTED, REJECTED] } }
+      responses:
+        '200': { description: Application status updated }
+        '404': { description: Application not found }
+  /api/training-courses:
+    get:
+      tags: [Training]
+      summary: List training courses
+      responses:
+        '200': { description: Training courses }
+    post:
+      tags: [Training]
+      summary: Create a training course
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TrainingCourseInput' }
+      responses:
+        '201': { description: Training course created }
+  /api/training-courses/{id}:
+    get:
+      tags: [Training]
+      summary: Get a training course
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer, format: int64 } }
+      responses:
+        '200': { description: Training course }
+        '404': { description: Training course not found }
+    put:
+      tags: [Training]
+      summary: Update a training course
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer, format: int64 } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TrainingCourseInput' }
+      responses:
+        '200': { description: Training course updated }
+        '404': { description: Training course not found }
+    delete:
+      tags: [Training]
+      summary: Delete a training course
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer, format: int64 } }
+      responses:
+        '204': { description: Training course deleted }
+        '404': { description: Training course not found }
+  /api/training-enrollments:
+    post:
+      tags: [Training]
+      summary: Enroll an employee in a course
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TrainingEnrollmentInput' }
+      responses:
+        '201': { description: Employee enrolled }
+        '404': { description: Employee or course not found }
+        '409': { description: Employee inactive or already enrolled }
+  /api/training-enrollments/{id}/complete:
+    post:
+      tags: [Training]
+      summary: Mark training as completed
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer, format: int64 } }
+      responses:
+        '200': { description: Enrollment completed }
+  /api/training-enrollments/{id}/cancel:
+    post:
+      tags: [Training]
+      summary: Cancel active training enrollment
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer, format: int64 } }
+      responses:
+        '200': { description: Enrollment cancelled }
+  /api/training-enrollments/employee/{employeeId}:
+    get:
+      tags: [Training]
+      summary: List an employee's training enrollments
+      parameters:
+        - { name: employeeId, in: path, required: true, schema: { type: integer, format: int64 } }
+      responses:
+        '200': { description: Training enrollments }
+  /api/payslips:
+    get:
+      tags: [Payroll]
+      summary: List payslips, optionally filtered by employee
+      parameters:
+        - { name: employeeId, in: query, schema: { type: integer, format: int64 } }
+      responses:
+        '200': { description: Payslips }
+    post:
+      tags: [Payroll]
+      summary: Create a payslip for a month
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PayslipInput' }
+      responses:
+        '201': { description: Payslip created }
+        '400': { description: Invalid period or negative net salary }
+        '404': { description: Employee not found }
+        '409': { description: Payslip exists for that employee and period }
 components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
   schemas:
     DepartmentInput:
       type: object
@@ -227,6 +467,47 @@ components:
         hireDate: { type: string, format: date }
         departmentId: { type: integer, format: int64 }
         managerId: { type: integer, format: int64, nullable: true }
+    JobOpeningInput:
+      type: object
+      required: [title, description, departmentId, openedOn]
+      properties:
+        title: { type: string, maxLength: 120 }
+        description: { type: string, maxLength: 4000 }
+        departmentId: { type: integer, format: int64 }
+        openedOn: { type: string, format: date }
+        closesOn: { type: string, format: date, nullable: true }
+    JobApplicationInput:
+      type: object
+      required: [fullName, email]
+      properties:
+        fullName: { type: string, maxLength: 120 }
+        email: { type: string, format: email, maxLength: 150 }
+        phone: { type: string, maxLength: 30, nullable: true }
+        resumeUrl: { type: string, maxLength: 1000, nullable: true }
+    TrainingCourseInput:
+      type: object
+      required: [title, durationHours]
+      properties:
+        title: { type: string, maxLength: 150 }
+        description: { type: string, maxLength: 4000, nullable: true }
+        provider: { type: string, maxLength: 150, nullable: true }
+        durationHours: { type: number, minimum: 0, exclusiveMinimum: true }
+    TrainingEnrollmentInput:
+      type: object
+      required: [employeeId, courseId]
+      properties:
+        employeeId: { type: integer, format: int64 }
+        courseId: { type: integer, format: int64 }
+    PayslipInput:
+      type: object
+      required: [employeeId, periodYear, periodMonth, grossSalary, additions, deductions]
+      properties:
+        employeeId: { type: integer, format: int64 }
+        periodYear: { type: integer, minimum: 2000, maximum: 2100 }
+        periodMonth: { type: integer, minimum: 1, maximum: 12 }
+        grossSalary: { type: number, minimum: 0 }
+        additions: { type: number, minimum: 0 }
+        deductions: { type: number, minimum: 0 }
     ContractInput:
       type: object
       required: [type, startDate, grossSalary, employeeId]
