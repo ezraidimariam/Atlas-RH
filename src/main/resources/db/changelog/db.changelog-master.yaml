@@ -224,3 +224,52 @@ databaseChangeLog:
             tableName: attendance_records
             columnNames: employee_id, work_date
             constraintName: uk_attendance_employee_date
+  - changeSet:
+      id: 5-create-job-openings
+      author: atlasrh
+      changes:
+        - createTable:
+            tableName: job_openings
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: title
+                  type: VARCHAR(120)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: VARCHAR(4000)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: department_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: opened_on
+                  type: DATE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: closes_on
+                  type: DATE
+              - column:
+                  name: status
+                  type: VARCHAR(20)
+                  defaultValue: OPEN
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: job_openings
+            baseColumnNames: department_id
+            referencedTableName: departments
+            referencedColumnNames: id
+            constraintName: fk_job_openings_department
