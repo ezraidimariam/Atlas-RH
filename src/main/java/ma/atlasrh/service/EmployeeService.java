@@ -12,6 +12,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import java.util.List;
 
 @Service
@@ -32,6 +35,14 @@ public class EmployeeService {
 
     @Transactional(readOnly = true)
     public List<EmployeeResponse> findAll() { return employees.findAll().stream().map(this::toResponse).toList(); }
+
+    @Transactional(readOnly = true)
+    public Page<EmployeeResponse> search(String query, Long departmentId, int page, int size) {
+        if (page < 0 || size < 1 || size > 100) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Page must be non-negative and size must be between 1 and 100");
+        String normalizedQuery = query == null || query.isBlank() ? null : query.trim();
+        return employees.search(normalizedQuery, departmentId, PageRequest.of(page, size, Sort.by("lastName").ascending().and(Sort.by("firstName").ascending())))
+                .map(this::toResponse);
+    }
 
     @Transactional(readOnly = true)
     public EmployeeResponse findById(Long id) { return toResponse(get(id)); }

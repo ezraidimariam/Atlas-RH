@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.data.domain.Page;
 import java.util.List;
 
 @RestController
@@ -23,6 +25,13 @@ public class EmployeeController {
     public EmployeeController(EmployeeService service) { this.service = service; }
 
     @GetMapping public List<EmployeeResponse> findAll() { return service.findAll(); }
+    @GetMapping("/search")
+    public Page<EmployeeResponse> search(@RequestParam(required = false) String q,
+                                         @RequestParam(required = false) Long departmentId,
+                                         @RequestParam(defaultValue = "0") int page,
+                                         @RequestParam(defaultValue = "20") int size) {
+        return service.search(q, departmentId, page, size);
+    }
     @GetMapping("/{id}") public EmployeeResponse findById(@PathVariable Long id) { return service.findById(id); }
     @PostMapping @ResponseStatus(HttpStatus.CREATED)
     public EmployeeResponse create(@Valid @RequestBody EmployeeRequest request) { return service.create(request); }
