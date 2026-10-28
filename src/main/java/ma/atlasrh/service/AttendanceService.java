@@ -1,6 +1,7 @@
 package ma.atlasrh.service;
 
 import ma.atlasrh.dto.AttendanceResponse;
+import ma.atlasrh.dto.AttendanceSummary;
 import ma.atlasrh.entity.AttendanceRecord;
 import ma.atlasrh.entity.Employee;
 import ma.atlasrh.repository.AttendanceRecordRepository;
@@ -49,6 +50,15 @@ public class AttendanceService {
                 ? records.findByWorkDateBetweenOrderByWorkDateDesc(from, to)
                 : records.findByEmployeeIdAndWorkDateBetweenOrderByWorkDateDesc(employeeId, from, to);
         return result.stream().map(this::toResponse).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public AttendanceSummary summarize(Long employeeId, LocalDate from, LocalDate to) {
+        List<AttendanceResponse> records = find(employeeId, from, to);
+        long incomplete = records.stream().filter(record -> record.clockOut() == null).count();
+        long minutes = records.stream().filter(record -> record.clockOut() != null)
+                .mapToLong(record -> java.time.Duration.between(record.clockIn(), record.clockOut()).toMinutes()).sum();
+        return new AttendanceSummary(employeeId, from, to, records.size(), incomplete, minutes);
     }
 
     private Employee getEmployee(Long id) { return employees.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Employee not found")); }

@@ -1,6 +1,7 @@
 package ma.atlasrh.controller;
 
 import ma.atlasrh.dto.AttendanceResponse;
+import ma.atlasrh.dto.AttendanceSummary;
 import ma.atlasrh.service.AttendanceService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -29,5 +30,12 @@ public class AttendanceController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
         return service.find(employeeId, from, to);
+    }
+
+    @GetMapping("/summary")
+    public AttendanceSummary summarize(@RequestParam(required = false) Long employeeId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+        return service.summarize(employeeId, from, to);
     }
 }
