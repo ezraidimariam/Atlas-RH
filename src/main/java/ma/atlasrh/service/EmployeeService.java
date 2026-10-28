@@ -85,10 +85,16 @@ public class EmployeeService {
         employees.delete(employee);
     }
 
+    public EmployeeResponse setActive(Long id, boolean active) {
+        Employee employee = get(id);
+        employee.setActive(active);
+        return toResponse(employees.save(employee));
+    }
+
     private Employee get(Long id) { return employees.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Employee not found")); }
     private Department department(Long id) { return departments.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Department not found")); }
     private EmployeeResponse toResponse(Employee e) {
         return new EmployeeResponse(e.getId(), e.getEmployeeNumber(), e.getLastName(), e.getFirstName(), e.getEmail(), e.getJobTitle(),
-                e.getHireDate(), e.getDepartment().getId(), e.getDepartment().getName(), e.getManager() == null ? null : e.getManager().getId());
+                e.getHireDate(), e.getDepartment().getId(), e.getDepartment().getName(), e.getManager() == null ? null : e.getManager().getId(), e.isActive());
     }
 }

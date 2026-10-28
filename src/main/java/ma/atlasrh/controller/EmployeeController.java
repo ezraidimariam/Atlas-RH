@@ -36,6 +36,8 @@ public class EmployeeController {
     @PostMapping @ResponseStatus(HttpStatus.CREATED)
     public EmployeeResponse create(@Valid @RequestBody EmployeeRequest request) { return service.create(request); }
     @PutMapping("/{id}") public EmployeeResponse update(@PathVariable Long id, @Valid @RequestBody EmployeeRequest request) { return service.update(id, request); }
+    @PutMapping("/{id}/status")
+    public EmployeeResponse setStatus(@PathVariable Long id, @RequestParam boolean active) { return service.setActive(id, active); }
     @DeleteMapping("/{id}") @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) { service.delete(id); }
 }

@@ -64,6 +64,9 @@ public class Employee {
     @JoinColumn(name = "manager_id")
     private Employee manager;
 
+    @Column(nullable = false)
+    private boolean active = true;
+
     protected Employee() {
     }
 
@@ -88,6 +91,7 @@ public class Employee {
     public LocalDate getHireDate() { return hireDate; }
     public Department getDepartment() { return department; }
     public Employee getManager() { return manager; }
+    public boolean isActive() { return active; }
 
     public void setEmployeeNumber(String employeeNumber) { this.employeeNumber = employeeNumber; }
     public void setLastName(String lastName) { this.lastName = lastName; }
@@ -97,4 +101,5 @@ public class Employee {
     public void setHireDate(LocalDate hireDate) { this.hireDate = hireDate; }
     public void setDepartment(Department department) { this.department = department; }
     public void setManager(Employee manager) { this.manager = manager; }
+    public void setActive(boolean active) { this.active = active; }
 }
