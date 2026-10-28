@@ -325,3 +325,33 @@ databaseChangeLog:
             referencedTableName: job_openings
             referencedColumnNames: id
             constraintName: fk_job_applications_opening
+  - changeSet:
+      id: 7-create-training-courses
+      author: atlasrh
+      changes:
+        - createTable:
+            tableName: training_courses
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: title
+                  type: VARCHAR(150)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: VARCHAR(4000)
+              - column:
+                  name: provider
+                  type: VARCHAR(150)
+              - column:
+                  name: duration_hours
+                  type: DECIMAL(6, 2)
+                  constraints:
+                    nullable: false
